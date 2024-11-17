@@ -1,37 +1,71 @@
 import sqlite3
 
 def create_connection():
-    # TODO: Create a connection to my_movie_collection.db
-    pass
+    conn = sqlite3.connect('movie_database.db')
+    return conn
 
 def create_table(conn):
-    # TODO: Create the movies table
-    pass
+    cursor = conn.cursor()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS movies (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   title TEXT NOT NULL,
+                   director TEXT,
+                   year INTEGER,
+                   rating FLOAT
+    )
+    ''')
+    conn.commit()
 
 def add_movie(conn, title, director, year, rating):
-    # TODO: Insert a new movie into the database
-    pass
+    cursor = conn.cursor()
+    cursor.execute(f'''
+    INSERT INTO movies (title, director, year, rating) 
+    VALUES ('{title}','{director}',{year},{rating}) 
+    ''')
+    conn.commit()
 
 def display_all_movies(conn):
-    # TODO: Select and display all movies
-    pass
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM movies')
+    all_movies = cursor.fetchall()
+    for movie in all_movies:
+        print(movie)
+    conn.commit()
 
 def update_movie_rating(conn, title, new_rating):
-    # TODO: Update the rating of a specified movie
-    pass
+    cursor = conn.cursor()
+    cursor.execute(f'''
+    UPDATE movies SET rating = {new_rating} WHERE title = '{title}'
+    ''')
+    conn.commit()
 
 def delete_movie(conn, title):
-    # TODO: Delete a specified movie from the database
-    pass
+    cursor = conn.cursor()
+    cursor.execute(f'''
+    DELETE FROM movies WHERE title = '{title}'
+    ''')
+    conn.commit()
 
 def find_movies_by_director(conn, director):
-    # TODO: Find and display all movies by a specific director
-    pass
+    cursor = conn.cursor()
+    cursor.execute(f'''
+    SELECT * FROM movies WHERE director = '{director}'
+    ''')
+    all_movies = cursor.fetchall()
+    for movie in all_movies:
+        print(movie)
+    conn.commit()
+
 
 def main():
+
     conn = create_connection()
+
     if conn is not None:
+
         create_table(conn)
+
         while True:
             print("\n--- Movie Database Manager ---")
             print("1. Add a new movie")
@@ -41,6 +75,7 @@ def main():
             print("5. Find movies by director")
             print("6. Exit")
             choice = input("Enter your choice (1-6): ")
+
             if choice == '1':
                 title = input("Enter movie title: ")
                 director = input("Enter director name: ")
@@ -48,28 +83,37 @@ def main():
                 rating = float(input("Enter rating (0-10): "))
                 add_movie(conn, title, director, year, rating)
                 print("Movie added successfully!")
+
             elif choice == '2':
                 display_all_movies(conn)
+
             elif choice == '3':
                 title = input("Enter movie title to update: ")
                 new_rating = float(input("Enter new rating (0-10): "))
                 update_movie_rating(conn, title, new_rating)
                 print("Rating updated successfully!")
+
             elif choice == '4':
                 title = input("Enter movie title to delete: ")
                 delete_movie(conn, title)
                 print("Movie deleted successfully!")
+
             elif choice == '5':
                 director = input("Enter director name: ")
                 find_movies_by_director(conn, director)
+
             elif choice == '6':
                 print("Thank you for using Movie Database Manager. Goodbye!")
+                conn.close()
                 break
+
             else:
                 print("Invalid choice. Please try again.")
-        conn.close()
+
+    
     else:
         print("Error! Cannot create the database connection.")
+    
 
 if __name__ == '__main__':
     main()
